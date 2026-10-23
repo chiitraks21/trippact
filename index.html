@@ -217,6 +217,30 @@ h2{font-size:17px;margin:0 0 4px;font-weight:700;line-height:1.3}
 .sheet .btn{margin-top:16px}
 .toast{position:absolute;left:50%;bottom:84px;transform:translate(-50%,16px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:24px;font-size:14px;font-weight:600;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:30;white-space:nowrap}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+.modebar{display:flex;gap:6px;background:var(--soft);border-radius:14px;padding:4px;margin:12px 0 4px;position:sticky;top:0;z-index:3}
+.modebar button{flex:1;border:0;background:none;border-radius:10px;padding:10px 6px;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--grey)}
+.modebar button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.14)}
+.modebar button:disabled{cursor:default}
+.fld{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.fld>span:first-child{color:var(--grey)}
+.fld b{text-align:right}
+.fld select{font:inherit;font-weight:700;border:1px solid #DDDDDD;border-radius:8px;padding:6px 8px;background:#fff;color:var(--ink);max-width:62%}
+.stepr{display:flex;align-items:center;gap:12px}
+.stepr button{width:30px;height:30px;border-radius:50%;border:1px solid #B0B0B0;background:#fff;cursor:pointer;font-weight:700;line-height:1}
+.stepr b{min-width:16px;text-align:center}
+.tog{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;cursor:pointer;line-height:1.4}
+.tog input{accent-color:var(--ink);width:18px;height:18px;margin-top:1px;flex:none}
+.fare{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid #DDDDDD;background:#fff;border-radius:12px;padding:12px 14px;margin:8px 0;cursor:pointer;font-size:14px}
+.fare.sel{border:2px solid var(--ink);padding:11px 13px}
+.fare .price{font-weight:800;white-space:nowrap;text-align:right}
+.cheap{color:var(--green);font-size:11px;font-weight:700;margin-left:4px}
+.fitpill{font-size:12px;font-weight:700;border-radius:20px;padding:4px 10px;background:var(--soft);color:var(--grey);white-space:nowrap}
+.fitpill.hi{background:var(--green-bg);color:var(--green)}
+.ccard{border-radius:16px;padding:18px;margin:14px 0 4px;background:linear-gradient(135deg,#222222,#4A4A4A);color:#fff;display:flex;flex-direction:column;gap:6px}
+.ccard span{font-size:13px;opacity:.8}
+.ccard b{font-size:20px;letter-spacing:.08em}
+.ccard small{font-size:12px;opacity:.75}
+.voucher .btn.small{margin-top:4px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -228,12 +252,13 @@ h2{font-size:17px;margin:0 0 4px;font-weight:700;line-height:1.3}
     <p class="meta">Prototype for the Scapia product assignment. One plan: a long-weekend trip from Bengaluru. One user: the organiser. Jump to any step of the journey:</p>
     <ol class="jl">
       <li><button data-s="1" onclick="jump(1)">Choose where to go</button></li>
-      <li><button data-s="2" onclick="jump(2)">Create the plan</button></li>
-      <li><button data-s="3" onclick="jump(3)">Commit and pay</button></li>
-      <li><button data-s="4" onclick="jump(4)">Booked, proof shared</button></li>
-      <li><button data-s="5" onclick="jump(5)">Someone drops out</button></li>
-      <li><button data-s="6" onclick="jump(6)">The trip</button></li>
-      <li><button data-s="7" onclick="jump(7)">After the trip</button></li>
+      <li><button data-s="2" onclick="jump(2)">Choose how to go</button></li>
+      <li><button data-s="3" onclick="jump(3)">Create the plan</button></li>
+      <li><button data-s="4" onclick="jump(4)">Commit and pay</button></li>
+      <li><button data-s="5" onclick="jump(5)">Booked, proof shared</button></li>
+      <li><button data-s="6" onclick="jump(6)">Someone drops out</button></li>
+      <li><button data-s="7" onclick="jump(7)">The trip</button></li>
+      <li><button data-s="8" onclick="jump(8)">After the trip</button></li>
     </ol>
     <button class="restart" onclick="restart()">Restart demo</button>
     <p class="note">Prices, ratings, reviews and payments are sample data. Links open Google Maps, Instagram and cab apps.</p>
@@ -250,6 +275,7 @@ h2{font-size:17px;margin:0 0 4px;font-weight:700;line-height:1.3}
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 /* ---------- Data ---------- */
 var PEOPLE={
@@ -258,10 +284,10 @@ var PEOPLE={
  meera:{name:'Meera',init:'M',color:'#8A4FFF'},
  rohan:{name:'Rohan',init:'R',color:'#E07A00'},
  ishita:{name:'Ishita',init:'I',color:'#00A699'},
- ananya:{name:'Ananya',init:'An',color:'#D93B8C',mutuals:3,knows:'Meera, Ishita and you'},
- kabir:{name:'Kabir',init:'K',color:'#5C6BC0',mutuals:1,knows:'Aarav'},
- sana:{name:'Sana',init:'S',color:'#6B9E2F',mutuals:2,knows:'Rohan and you'},
- dev:{name:'Dev',init:'D',color:'#8D6E63',mutuals:2,knows:'Aarav and Rohan'}
+ ananya:{name:'Ananya',init:'An',color:'#D93B8C',mutuals:3,knows:'Meera, Ishita and you',fit:92,trip:'Went to Gokarna with Meera and Ishita, Jan 2026',city:'Lives in Bengaluru'},
+ kabir:{name:'Kabir',init:'K',color:'#5C6BC0',mutuals:1,knows:'Aarav',fit:58,trip:'No trips with the group yet',city:'Lives in Bengaluru'},
+ sana:{name:'Sana',init:'S',color:'#6B9E2F',mutuals:2,knows:'Rohan and you',fit:81,trip:'Went to Pondicherry with Rohan and you, Mar 2026',city:'Lives in Bengaluru'},
+ dev:{name:'Dev',init:'D',color:'#8D6E63',mutuals:2,knows:'Aarav and Rohan',fit:74,trip:'Went to Hampi with Aarav and Rohan, Dec 2025',city:'Lives in Mysuru'}
 };
 var GOING0=['me','aarav','meera','rohan','ishita'];
 var OTHERS=['aarav','meera','rohan','ishita'];
@@ -293,7 +319,7 @@ var TIMES=['Mon 26 Oct, 9:02 pm','Mon 26 Oct, 9:31 pm','Mon 26 Oct, 10:10 pm','T
 var KIND={hills:'Hills',beach:'Beach',heritage:'Heritage'};
 
 var PLACES=[
-{id:'coorg',name:'Coorg',area:'Madikeri, Karnataka',town:'Madikeri',kind:'hills',km:250,hrs:'5.5 hr',rating:4.6,reviews:2140,sun:300,c1:'#8CC3A2',c2:'#4F9C74',c3:'#2E6F4E',
+{id:'coorg',gw:{air:{code:'IXE',name:'Mangaluru airport',transfer:'about 3.5 hours by cab to Madikeri'},rail:{code:'MYS',name:'Mysuru Junction',transfer:'about 3 hours by cab to Madikeri'}},name:'Coorg',area:'Madikeri, Karnataka',town:'Madikeri',kind:'hills',km:250,hrs:'5.5 hr',rating:4.6,reviews:2140,sun:300,c1:'#8CC3A2',c2:'#4F9C74',c3:'#2E6F4E',
  scores:{stay:4.5,food:4.4,hygiene:4.3,experience:4.7,value:4.1},
  villa:{name:'Misty Ridge Estate Villa',cost:40000,beds:'3 bedrooms, sleeps 6',amen:['Plantation walk','Bonfire area','Wi-Fi','Kitchen and cook on call','Hot water all day','Parking for a tempo traveller']},
  act:6000,actNote:'Mandalpatti jeep ride and Dubare elephant camp',trans:9000,transNote:'12-seat tempo traveller, return from Bengaluru',
@@ -305,7 +331,7 @@ var PLACES=[
  tips:['Carry a light jacket, nights get cold','Buy coffee and spices at the Madikeri market','Mobile signal drops on estate roads'],
  rev:[{n:'Priya S.',r:5,d:'Sep 2026',t:"The villa was spotless and the cook made the best pandi curry we've had. Mandalpatti at sunrise was the highlight."},{n:'Karthik R.',r:4,d:'Aug 2026',t:'Great for a group of 6. Roads after Kushalnagar are slow, so plan for it.'}],
  insta:'coorg'},
-{id:'chik',name:'Chikmagalur',area:'Chikkamagaluru, Karnataka',town:'Chikkamagaluru',kind:'hills',km:245,hrs:'5 hr',rating:4.5,reviews:1860,sun:90,c1:'#9BB98A',c2:'#5E8B4C',c3:'#3C6232',
+{id:'chik',gw:{air:{code:'IXE',name:'Mangaluru airport',transfer:'about 4 hours by cab to Chikkamagaluru'},rail:null},name:'Chikmagalur',area:'Chikkamagaluru, Karnataka',town:'Chikkamagaluru',kind:'hills',km:245,hrs:'5 hr',rating:4.5,reviews:1860,sun:90,c1:'#9BB98A',c2:'#5E8B4C',c3:'#3C6232',
  scores:{stay:4.4,food:4.2,hygiene:4.2,experience:4.6,value:4.4},
  villa:{name:'Bean Trail Coffee Bungalow',cost:34000,beds:'3 bedrooms, sleeps 6',amen:['Estate walk with the planter','Pool','Bonfire','Wi-Fi','Home-style Malnad meals','Parking']},
  act:5000,actNote:'Hebbe Falls jeep and coffee estate tour',trans:9000,transNote:'12-seat tempo traveller, return from Bengaluru',
@@ -317,7 +343,7 @@ var PLACES=[
  tips:['Reach Mullayanagiri early; weekend traffic is regulated','Pick up estate coffee powder before you leave','Carry cash for jeep drivers'],
  rev:[{n:'Ankit M.',r:5,d:'Oct 2026',t:'The bungalow had a lovely pool and the planter took us around the estate. Totally worth it.'},{n:'Shreya K.',r:4,d:'Jul 2026',t:'Food was simple but tasty. Mullayanagiri gets crowded after 9 am.'}],
  insta:'chikmagalur'},
-{id:'wayanad',name:'Wayanad',area:'Kalpetta, Kerala',town:'Kalpetta',kind:'hills',km:280,hrs:'6 hr',rating:4.4,reviews:1520,sun:200,c1:'#86C5B5',c2:'#3F8F7E',c3:'#245E54',
+{id:'wayanad',gw:{air:{code:'CCJ',name:'Kozhikode airport',transfer:'about 2.5 hours by cab to Kalpetta'},rail:{code:'CLT',name:'Kozhikode station',transfer:'about 2.5 hours by cab to Kalpetta'}},name:'Wayanad',area:'Kalpetta, Kerala',town:'Kalpetta',kind:'hills',km:280,hrs:'6 hr',rating:4.4,reviews:1520,sun:200,c1:'#86C5B5',c2:'#3F8F7E',c3:'#245E54',
  scores:{stay:4.3,food:4.5,hygiene:4.1,experience:4.5,value:4.2},
  villa:{name:'Banasura View Villa',cost:36000,beds:'3 bedrooms, sleeps 6',amen:['Lake-view deck','Infinity pool','Kerala breakfast included','Wi-Fi','Power backup','Parking']},
  act:6500,actNote:'Edakkal Caves and Banasura boating',trans:10000,transNote:'12-seat tempo traveller, return from Bengaluru',
@@ -329,7 +355,7 @@ var PLACES=[
  tips:['Carry ID for Edakkal and Chembra entry','Spice shops in Kalpetta for cardamom and pepper','Check the Bandipur night closure before you leave'],
  rev:[{n:'Nikhil J.',r:5,d:'Sep 2026',t:'The pool over the lake was unreal. Puttu and kadala curry every morning.'},{n:'Ritu P.',r:4,d:'Jun 2026',t:'Remember the Bandipur night closure. We waited at the check post till 6 am.'}],
  insta:'wayanad'},
-{id:'ooty',name:'Ooty',area:'Udhagamandalam, Tamil Nadu',town:'Ooty',kind:'hills',km:270,hrs:'7 hr',rating:4.2,reviews:3010,sun:330,c1:'#A9C3D9',c2:'#6F94B3',c3:'#3F5F7D',
+{id:'ooty',gw:{air:{code:'CJB',name:'Coimbatore airport',transfer:'about 3 hours by cab to Ooty'},rail:{code:'MTP',name:'Mettupalayam station',transfer:'toy train or 1.5 hours by cab to Ooty'}},name:'Ooty',area:'Udhagamandalam, Tamil Nadu',town:'Ooty',kind:'hills',km:270,hrs:'7 hr',rating:4.2,reviews:3010,sun:330,c1:'#A9C3D9',c2:'#6F94B3',c3:'#3F5F7D',
  scores:{stay:4.0,food:3.9,hygiene:3.8,experience:4.3,value:4.0},
  villa:{name:'Pine Crest Cottage',cost:30000,beds:'3 bedrooms, sleeps 6',amen:['Fireplace','Garden','Wi-Fi','Room heaters','Parking']},
  act:4000,actNote:'Toy train ride and lake boating',trans:10000,transNote:'12-seat tempo traveller, return from Bengaluru',
@@ -341,7 +367,7 @@ var PLACES=[
  tips:['Book the toy train early on weekends','Winter nights can drop below 10°C','Carry cash for small chocolate shops'],
  rev:[{n:'Deepak N.',r:4,d:'Aug 2026',t:'Cottage was cosy with a fireplace. Town gets very crowded on weekends.'},{n:'Aisha F.',r:4,d:'May 2026',t:'The toy train was the best part. Food near our stay was average.'}],
  insta:'ooty'},
-{id:'pondy',name:'Pondicherry',area:'Puducherry',town:'Puducherry',kind:'beach',km:310,hrs:'6 hr',rating:4.5,reviews:2780,sun:300,c1:'#3BA7D6',c2:'#F2D7A6',c3:'#2E8B57',
+{id:'pondy',gw:{air:{code:'MAA',name:'Chennai airport',transfer:'about 3 hours by cab to Puducherry'},rail:{code:'PDY',name:'Puducherry station',transfer:'about 10 minutes by auto to White Town'}},name:'Pondicherry',area:'Puducherry',town:'Puducherry',kind:'beach',km:310,hrs:'6 hr',rating:4.5,reviews:2780,sun:300,c1:'#3BA7D6',c2:'#F2D7A6',c3:'#2E8B57',
  scores:{stay:4.4,food:4.7,hygiene:4.3,experience:4.5,value:4.0},
  villa:{name:'Rue Lumière Heritage Villa',cost:38000,beds:'3 bedrooms, sleeps 6',amen:['French Quarter location','Courtyard','Plunge pool','Wi-Fi','Bicycles to borrow','AC rooms']},
  act:7000,actNote:'Surf lesson and Paradise Beach boat',trans:11000,transNote:'12-seat tempo traveller, return from Bengaluru',
@@ -353,7 +379,7 @@ var PLACES=[
  tips:['Rent a scooter for the beaches outside town','The Auroville visitor centre closes in the evening','Keep silence inside the Ashram'],
  rev:[{n:'Rahul V.',r:5,d:'Sep 2026',t:'The heritage villa was gorgeous. We cycled everywhere and ate far too many croissants.'},{n:'Neha G.',r:4,d:'Mar 2026',t:'Lovely town but hot in the afternoons. Do the beaches early or late.'}],
  insta:'pondicherry'},
-{id:'gokarna',name:'Gokarna',area:'Uttara Kannada, Karnataka',town:'Gokarna',kind:'beach',km:480,hrs:'9 hr',rating:4.4,reviews:1640,sun:120,c1:'#2C8FC2',c2:'#E9C98F',c3:'#3A7D44',
+{id:'gokarna',gw:{air:{code:'GOI',name:'Goa (Dabolim) airport',transfer:'about 3 hours by cab to Gokarna'},rail:{code:'GOK',name:'Gokarna Road station',transfer:'about 20 minutes by auto to the beaches'}},name:'Gokarna',area:'Uttara Kannada, Karnataka',town:'Gokarna',kind:'beach',km:480,hrs:'9 hr',rating:4.4,reviews:1640,sun:120,c1:'#2C8FC2',c2:'#E9C98F',c3:'#3A7D44',
  scores:{stay:3.9,food:4.2,hygiene:3.8,experience:4.6,value:4.4},
  villa:{name:'Kudle Cliff Cottages',cost:32000,beds:'4 cottages, sleeps 6',amen:['Sea-facing cottages','Hammocks','Beach access','Wi-Fi in the common area','Breakfast included']},
  act:6000,actNote:'Beach trek and boat to Paradise Beach',trans:16000,transNote:'12-seat tempo traveller, return from Bengaluru',
@@ -365,7 +391,7 @@ var PLACES=[
  tips:['Wear trek shoes for the beach trail','Dress modestly near the temple','ATMs are few, so carry cash'],
  rev:[{n:'Varun T.',r:5,d:'Jan 2026',t:'The beach trek was epic. Cottages were basic but the view made up for it.'},{n:'Sneha R.',r:3,d:'Dec 2025',t:'Washrooms at our stay were not great. The food at the shacks was lovely though.'}],
  insta:'gokarna'},
-{id:'hampi',name:'Hampi',area:'Vijayanagara, Karnataka',town:'Hampi',kind:'heritage',km:340,hrs:'6.5 hr',rating:4.6,reviews:2290,sun:320,c1:'#C98B57',c2:'#B5733F',c3:'#7A4A2A',
+{id:'hampi',gw:{air:{code:'VDY',name:'Jindal Vijaynagar airport',transfer:'about 1 hour by cab to Hampi'},rail:{code:'HPT',name:'Hosapete Junction',transfer:'about 20 minutes by auto to Hampi'}},name:'Hampi',area:'Vijayanagara, Karnataka',town:'Hampi',kind:'heritage',km:340,hrs:'6.5 hr',rating:4.6,reviews:2290,sun:320,c1:'#C98B57',c2:'#B5733F',c3:'#7A4A2A',
  scores:{stay:3.9,food:3.8,hygiene:3.7,experience:4.8,value:4.6},
  villa:{name:'Boulder Bay Homestay',cost:26000,beds:'3 rooms, sleeps 6',amen:['Paddy-field views','Courtyard','Cycles to rent','Rooftop sit-out','AC on request']},
  act:5000,actNote:'Guided ruins tour and coracle ride',trans:12000,transNote:'12-seat tempo traveller, return from Bengaluru',
@@ -382,8 +408,8 @@ var PLACES=[
 /* ---------- Helpers ---------- */
 var CABS=[['Uber','https://m.uber.com/'],['Ola','https://book.olacabs.com/'],['Rapido','https://www.rapido.bike/']];
 var SHIELD='<svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF385C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>';
-var STAGE={home:0,filters:1,brochure:1,place:1,poll:1,plan:2,pay:3,booked:4,dropout:5,settle:5,trip:6,after:7};
-var STAGE_NAMES=['','Choose where to go','Create the plan','Commit and pay','Booked, proof shared','Someone drops out','The trip','After the trip'];
+var STAGE={home:0,filters:1,brochure:1,place:1,poll:1,travel:2,plan:3,pay:4,booked:5,dropout:6,settle:6,trip:7,after:8};
+var STAGE_NAMES=['','Choose where to go','Choose how to go','Create the plan','Commit and pay','Booked, proof shared','Someone drops out','The trip','After the trip'];
 function $(s){return document.querySelector(s);}
 function inr(n){return '₹'+Math.round(n).toLocaleString('en-IN');}
 function P(id){return PLACES.find(function(p){return p.id===id;});}
@@ -411,14 +437,16 @@ function art(p,h){
 }
 
 /* ---------- State ---------- */
-function fresh(){return {screen:'home',hist:[],lastJourney:'home',organiser:false,myVotes:{},filterLocked:false,fr:null,shortlist:[],myPlace:null,destination:null,pollTie:false,placeId:null,placeTab:'overview',contacts:false,myProt:null,protRate:null,protTie:false,agreed:{},planLocked:false,paid:{},paying:false,bookingNow:false,booked:false,bookingId:'TP-'+(48000+Math.floor(Math.random()*1999)),dropout:null,noDrop:false,seatOpenedAt:null,candidate:null,myCand:{},rejected:[],replaced:null,scenario:null,myTrip:[],tripLocked:false,picks:[],done:false,decisions:[],ti:0,walletOf:'me',upi:'gpay'};}
+function fresh(){return {screen:'home',hist:[],lastJourney:'home',organiser:false,myVotes:{},filterLocked:false,fr:null,shortlist:[],myPlace:null,destination:null,pollTie:false,placeId:null,placeTab:'overview',contacts:false,myProt:null,protRate:null,protTie:false,agreed:{},planLocked:false,paid:{},paying:false,bookingNow:false,booked:false,bookingId:'TP-'+(48000+Math.floor(Math.random()*1999)),dropout:null,noDrop:false,seatOpenedAt:null,candidate:null,myCand:{},rejected:[],replaced:null,scenario:null,myTrip:[],tripLocked:false,picks:[],done:false,decisions:[],ti:0,walletOf:'me',upi:'gpay',origin:'blr',together:true,travellers:5,bags:5,mode:null,pick:null,travelAsk:false,travelOk:{},travel:null,receipts:[]};}
 var S=fresh();
 function stamp(){var t=TIMES[Math.min(S.ti,TIMES.length-1)];S.ti++;return t;}
 function log(title,detail,tally){S.decisions.unshift({title:title,detail:detail,tally:tally,time:stamp()});}
 function counts(vals,votes){var c={};vals.forEach(function(v){c[v]=0;});Object.keys(votes).forEach(function(k){var v=votes[k];if(v in c)c[v]++;});return c;}
 function decide(vals,votes){var c=counts(vals,votes);var max=Math.max.apply(null,vals.map(function(v){return c[v];}));var top=vals.filter(function(v){return c[v]===max;});var win=top[0];var tie=top.length>1;if(tie&&top.indexOf(votes.me)>=0)win=votes.me;return {win:win,c:c,tie:tie};}
 function going(){var g=GOING0.filter(function(x){return x!==S.dropout;});if(S.replaced)g.push(S.replaced);return g;}
-function share(){return perHead(P(S.destination||'coorg'));}
+var TRANSFER=3500;
+function travelPot(){var p=P(S.destination||'coorg');if(!S.travel||S.travel.mode==='road')return p.trans;return S.travel.total+TRANSFER;}
+function share(){var p=P(S.destination||'coorg');return Math.round((p.villa.cost+p.act+travelPot())/5);}
 function protAmt(rate){return Math.round(share()*(+rate)/100);}
 function prot(){return protAmt(S.protRate||S.myProt||'6');}
 
@@ -489,7 +517,7 @@ function payNow(){
  },1200);
 }
 function autoBook(){if(S.booked||S.bookingNow)return;S.bookingNow=true;if(S.screen==='pay')render();setTimeout(function(){book();if(S.screen==='pay')go('booked');else render();},1700);}
-function book(){S.booked=true;S.bookingNow=false;var p=P(S.destination);log('Villa booked automatically',p.villa.name+', 2 nights, '+inr(p.villa.cost)+' paid to the host from the group pot. Booking proof '+S.bookingId+' sent to all 5.','All 5 paid');}
+function book(){S.booked=true;S.bookingNow=false;var p=P(S.destination);S.receipts.push({id:'RC-'+S.bookingId.slice(3),title:'Villa booking: '+p.villa.name,date:'Thu 5 Nov 2026',lines:[['Booking ID',S.bookingId],['Property',p.villa.name],['Location',p.area],['Check-in','Sat 14 Nov 2026'],['Check-out','Mon 16 Nov 2026'],['Guests','5'],['Cancellation','Non-refundable']],total:p.villa.cost,method:'TripPact group pot (UPI from all 5 members)'});log('Villa booked automatically',p.villa.name+', 2 nights, '+inr(p.villa.cost)+' paid to the host from the group pot. Booking proof '+S.bookingId+' sent to all 5.','All 5 paid');}
 function startDropout(silent){
  if(S.dropout)return;S.noDrop=false;S.dropout='rohan';S.seatOpenedAt=Date.now();
  log('Rohan dropped out','His office offsite moved to the same weekend. His seat is open to the standby bench for 48 hours. Everyone else\'s share stays locked.','Shares unchanged');
@@ -523,17 +551,18 @@ function prep(stage){
   if(!S.filterLocked){FILTERS.forEach(function(f){if(!S.myVotes[f.id])S.myVotes[f.id]=f.def;});lockFilters(true);}
   if(!S.destination){if(!S.myPlace||S.shortlist.indexOf(S.myPlace)<0)S.myPlace='coorg';closePoll(true);}
  }
- if(stage>2&&!S.planLocked){S.contacts=true;if(!S.myProt)S.myProt='6';if(!S.protRate)closeProt(true);GOING0.forEach(function(g){S.agreed[g]=true;});lockPlan(true);}
- if(stage>3&&!S.booked){GOING0.forEach(function(g){S.paid[g]=true;});book();}
- if(stage>4&&!S.dropout&&!S.noDrop)startDropout(true);
- if(stage>5&&S.dropout&&!S.scenario){S.myCand.ananya='yes';accept('ananya');}
- if(stage>6&&!S.tripLocked)lockTrip(true);
+ if(stage>2&&!S.travel){var ms=modesFor(P(S.destination));S.mode=ms[0];if(S.mode==='road')confirmRoad(true);else{S.pick=options()[0].i;bookTravel(true);}}
+ if(stage>3&&!S.planLocked){S.contacts=true;if(!S.myProt)S.myProt='6';if(!S.protRate)closeProt(true);GOING0.forEach(function(g){S.agreed[g]=true;});lockPlan(true);}
+ if(stage>4&&!S.booked){GOING0.forEach(function(g){S.paid[g]=true;});book();}
+ if(stage>5&&!S.dropout&&!S.noDrop)startDropout(true);
+ if(stage>6&&S.dropout&&!S.scenario){S.myCand.ananya='yes';accept('ananya');}
+ if(stage>7&&!S.tripLocked)lockTrip(true);
 }
 function jump(stage){
  closeSheet();prep(stage);
- var m={1:'filters',2:'plan',3:'pay',4:'booked',5:'dropout',6:'trip',7:'after'};
- if(stage===5&&!S.dropout)startDropout(true);
- if(stage===7&&!S.done){S.done=true;logCredits();}
+ var m={1:'filters',2:'travel',3:'plan',4:'pay',5:'booked',6:'dropout',7:'trip',8:'after'};
+ if(stage===6&&!S.dropout)startDropout(true);
+ if(stage===8&&!S.done){S.done=true;logCredits();}
  S.candidate=null;S.hist=[];go(m[stage],false);
 }
 
@@ -541,6 +570,7 @@ function jump(stage){
 function ledger(id){
  var L=[],sh=share(),pr=prot();
  if(S.paid[id]&&GOING0.indexOf(id)>=0){L.push({t:'Paid trip share',a:-sh});L.push({t:'Paid protection',a:-pr});}
+ if(id==='me'&&S.travel&&S.travel.total){L.push({t:cap(S.travel.mode)+' tickets paid on your Scapia card',a:-S.travel.total});if(S.booked)L.push({t:'Ticket refund from the group pot',a:S.travel.total});}
  if(id===S.replaced){L.push({t:'Paid trip share for Rohan\'s seat',a:-sh});L.push({t:'Paid protection',a:-pr});}
  if(id===S.dropout&&S.scenario==='A')L.push({t:'Refund: '+PEOPLE[S.replaced].name+' took your seat',a:sh});
  if(id===S.dropout&&S.scenario==='B')L.push({t:'Protection payout, 75% of your share',a:Math.round(sh*0.75)});
@@ -549,6 +579,117 @@ function ledger(id){
   if(id==='me')L.push({t:'Organiser credit',a:500,credit:true});
  }
  return L;
+}
+
+
+/* ---------- Travel ---------- */
+var ORIGINS=[{id:'blr',name:'Bengaluru',rail:'SBC',air:'BLR',f:1,near:true},{id:'maa',name:'Chennai',rail:'MAS',air:'MAA',f:1.15},{id:'hyd',name:'Hyderabad',rail:'SC',air:'HYD',f:1.3},{id:'bom',name:'Mumbai',rail:'CSMT',air:'BOM',f:1.5}];
+var MODE_L={train:'Train',flight:'Flight',road:'Road'};
+var MODE_IC={
+ train:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M9 21l1.5-4M15 21l-1.5-4"/><circle cx="9" cy="14" r=".6"/><circle cx="15" cy="14" r=".6"/></svg>',
+ flight:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 13.5L3 11l1.5-1.5 8 1 4-4.5c1-1 2.5-1 3 0s0 2-1 3l-4.5 4 1 8L13.5 21 11 13.5"/></svg>',
+ road:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16V8a2 2 0 012-2h11l4 5v5H3z"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/></svg>'
+};
+var TEMPL={train:[{n:'Night express',c:'AC 3-tier sleeper',m:1},{n:'Early morning superfast',c:'AC chair car',m:1.3},{n:'Intercity express',c:'Second sitting',m:0.45}],flight:[{n:'Early non-stop',c:'Economy',m:1},{n:'Evening non-stop',c:'Economy',m:1.25},{n:'One-stop saver',c:'Economy',m:0.88}]};
+function org(){return ORIGINS.find(function(x){return x.id===S.origin;});}
+function modesFor(p){var o=org(),m=[];if(o.near){if(p.gw.rail)m.push('train');m.push('road');}else{if(p.gw.air)m.push('flight');if(p.gw.rail)m.push('train');}return m.slice(0,2);}
+function gate(){var p=P(S.destination);return S.mode==='flight'?p.gw.air:p.gw.rail;}
+function options(){var o=org(),base=S.mode==='train'?650:3900;return TEMPL[S.mode].map(function(t,i){return {i:i,n:t.n,c:t.c,fare:Math.round(base*o.f*t.m/10)*10};}).sort(function(a,b){return a.fare-b.fare;});}
+function pickedOpt(){var o=options();for(var k=0;k<o.length;k++)if(o[k].i===S.pick)return o[k];return null;}
+function ticketTotal(f){return f*S.travellers*2;}
+function ixigo(){var o=org(),g=gate(),d='14112026',r='16112026';
+ if(S.mode==='flight')return 'https://www.ixigo.com/search/result/flight?from='+o.air+'&to='+g.code+'&date='+d+'&returnDate='+r+'&adults='+S.travellers+'&children=0&infants=0&class=e&source=Search%20Form';
+ return 'https://www.ixigo.com/search/result/train/'+o.rail+'/'+g.code+'/'+d+'//1/0/0/0/ALL';}
+function resetTravel(){S.pick=null;S.travelAsk=false;S.travelOk={};}
+function setMode(m){if(S.travel)return;S.mode=m;resetTravel();render();}
+function setOrigin(v){if(S.travel)return;S.origin=v;S.mode=modesFor(P(S.destination))[0];resetTravel();render();}
+function setTogether(on){if(S.travel)return;S.together=on;S.travellers=on?going().length:1;S.bags=S.travellers;resetTravel();render();}
+function stepVal(k,d){if(S.travel||S.travelAsk)return;var max=k==='travellers'?(S.together?going().length:1):12;S[k]=Math.max(k==='bags'?0:1,Math.min(max,S[k]+d));render();}
+function pickOpt(i){if(S.travelAsk)return;S.pick=i;render();}
+function askTravel(){if(S.travelAsk)return;S.travelAsk=true;render();OTHERS.forEach(function(o,i){setTimeout(function(){S.travelOk[o]=true;if(S.screen==='travel')render();},500*(i+1));});}
+function travelAgreed(){return OTHERS.every(function(o){return S.travelOk[o];});}
+function travelNote(){var p=P(S.destination);if(!S.travel||S.travel.mode==='road')return p.transNote;return cap(S.travel.mode)+' tickets for '+S.travel.travellers+', return, paid on your Scapia card and refunded from the pot, plus '+inr(TRANSFER)+' for cabs from '+S.travel.gate;}
+function confirmRoad(silent){var p=P(S.destination);S.mode='road';S.travel={mode:'road',total:0};log('Travel: by road',p.transNote+', '+inr(p.trans)+' from the group pot.',silent?'5 of 5 agreed':'5 of 5 agreed');if(!silent)render();}
+function openScapia(){var o=pickedOpt();var tot=ticketTotal(o.fare);
+ sheet('<div class="grab"></div><h2>Pay '+inr(tot)+'</h2><p class="small muted">'+o.n+', '+o.c+'. '+org().name+' to '+gate().name+' and back, '+plural(S.travellers,'traveller')+'.</p>'+
+ '<div class="ccard"><span>Scapia card</span><b>•••• 2041</b><small>Earns travel rewards on this booking</small></div>'+
+ '<button class="btn" onclick="payTravel()">Pay '+inr(tot)+' with Scapia</button><p class="small muted center">Simulated payment. No real money moves.</p>');}
+function payTravel(){closeSheet();toast('Confirming with Scapia…');setTimeout(function(){bookTravel();toast('Tickets booked');render();},1100);}
+function bookTravel(silent){
+ var o=pickedOpt(),g=gate(),or=org(),tot=ticketTotal(o.fare),id='RC-T'+(7000+Math.floor(Math.random()*999));
+ S.travel={mode:S.mode,name:o.n,cls:o.c,fare:o.fare,travellers:S.travellers,bags:S.bags,total:tot,gate:g.name,receipt:id};
+ S.receipts.push({id:id,title:cap(S.mode)+' tickets: '+or.name+' to '+g.name,date:'Tue 27 Oct 2026',lines:[['Option',o.n+', '+o.c],['From',or.name+' ('+(S.mode==='flight'?or.air:or.rail)+')'],['To',g.name+' ('+g.code+')'],['Outbound','Sat 14 Nov 2026'],['Return','Mon 16 Nov 2026'],['Travellers',String(S.travellers)],['Bags',String(S.bags)],['Fare per person, each way',inr(o.fare)]],total:tot,method:'Scapia card ending 2041'});
+ log('Travel: '+o.n+' to '+g.name,plural(S.travellers,'traveller')+', return, '+plural(S.bags,'bag')+'. '+inr(tot)+' paid on your Scapia card; the receipt is in Wallets.',(silent?'4 of 4':'4 of 4')+' approved');
+}
+function downloadReceipt(id){
+ var r=S.receipts.find(function(x){return x.id===id;});if(!r)return;
+ var rs=function(t){return String(t).replace(/₹/g,'Rs. ').replace(/[–—]/g,'-').replace(/•/g,'*');};
+ try{
+  var J=window.jspdf&&window.jspdf.jsPDF;if(!J)throw new Error('no pdf');
+  var d=new J({unit:'pt',format:'a5'}),y=50;
+  d.setFont('helvetica','bold');d.setFontSize(20);d.setTextColor(255,56,92);d.text('TripPact',40,y);
+  d.setFont('helvetica','normal');d.setFontSize(10);d.setTextColor(106,106,106);d.text('Receipt '+r.id+'   '+rs(r.date),40,y+=20);
+  d.setFont('helvetica','bold');d.setFontSize(13);d.setTextColor(34,34,34);d.text(d.splitTextToSize(rs(r.title),340),40,y+=32);y+=8;
+  d.setFontSize(10);
+  r.lines.forEach(function(l){y+=20;d.setFont('helvetica','normal');d.setTextColor(106,106,106);d.text(rs(l[0]),40,y);d.setTextColor(34,34,34);d.text(rs(l[1]),380,y,{align:'right'});});
+  y+=16;d.setDrawColor(220,220,220);d.line(40,y,380,y);y+=24;
+  d.setFont('helvetica','bold');d.setFontSize(13);d.text('Total paid',40,y);d.text(rs(inr(r.total)),380,y,{align:'right'});
+  y+=22;d.setFont('helvetica','normal');d.setFontSize(10);d.text('Paid with: '+rs(r.method),40,y);
+  y+=36;d.setFontSize(8);d.setTextColor(150,150,150);d.text('Sample receipt from the TripPact prototype. No real payment was made.',40,y);
+  d.save(r.id+'.pdf');
+ }catch(e){
+  var html='<!doctype html><meta charset="utf-8"><title>'+r.id+'</title><body style="font-family:Arial,sans-serif;max-width:460px;margin:40px auto;color:#222"><h2 style="color:#FF385C;margin:0">TripPact</h2><p style="color:#666">Receipt '+r.id+', '+r.date+'</p><h3>'+r.title+'</h3><table style="width:100%;font-size:14px">'+r.lines.map(function(l){return '<tr><td style="color:#666;padding:4px 0">'+l[0]+'</td><td style="text-align:right">'+l[1]+'</td></tr>';}).join('')+'</table><hr><p><b>Total paid '+inr(r.total)+'</b><br>Paid with: '+r.method+'</p><p style="color:#999;font-size:12px">Sample receipt from the TripPact prototype. No real payment was made.</p></body>';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));a.download=r.id+'.html';document.body.appendChild(a);a.click();a.remove();
+ }
+ toast('Receipt downloaded');
+}
+function receiptList(){
+ if(!S.receipts.length)return '';
+ return '<h2 class="sec">Receipts</h2><p class="hint">Bookings for the group. Everyone can see and download them.</p>'+S.receipts.map(function(r){return '<div class="lrow"><div class="grow"><b>'+r.title+'</b><div class="small muted">'+inr(r.total)+', '+r.date+'</div></div><button class="btn line small" onclick="downloadReceipt(\''+r.id+'\')">PDF</button></div>';}).join('');
+}
+function benchCard(){
+ var b=BENCH.slice().sort(function(x,y){return PEOPLE[y.id].fit-PEOPLE[x.id].fit;});
+ return '<h2 class="sec">If anyone drops out, these friends can step in</h2><p class="hint">Mutual friends of the 5 of you, ranked by fit. Fit is based on mutual friends, trips taken with the group and where they live.</p>'+
+ b.map(function(x){var q=PEOPLE[x.id];return '<div class="lrow">'+av(x.id,36)+'<div class="grow"><b>'+q.name+'</b><div class="small muted">'+plural(q.mutuals,'mutual friend')+'. '+q.trip+'. '+q.city+'.</div></div><span class="fitpill '+(q.fit>=75?'hi':'')+'">'+q.fit+'% fit</span></div>';}).join('')+
+ '<p class="small" style="margin:10px 0 0"><b>3 of the 4 have already travelled with members of this group.</b> If a seat opens, they hear first, and the group decides together.</p>';
+}
+function vTravel(){
+ var p=P(S.destination),o=org(),ms=modesFor(p);if(ms.indexOf(S.mode)<0){S.mode=ms[0];resetTravel();}
+ var h='<div class="modebar" role="tablist" aria-label="Ways to get there">'+ms.map(function(m){return '<button role="tab" aria-selected="'+(S.mode===m)+'" class="'+(S.mode===m?'on':'')+'" onclick="setMode(\''+m+'\')" '+(S.travel?'disabled':'')+'>'+MODE_IC[m]+MODE_L[m]+'</button>';}).join('')+'</div>';
+ h+='<h1 class="h1">How do we get to '+p.name+'?</h1><p class="sub">'+(ms.length>1?'The two most practical ways':'The most practical way')+' from '+o.name+'. Switch above to compare.</p>';
+ var g=S.mode==='road'?null:gate();
+ h+='<div class="card">'+
+  '<label class="fld"><span>From</span><select aria-label="From" onchange="setOrigin(this.value)" '+(S.travel?'disabled':'')+'>'+ORIGINS.map(function(x){return '<option value="'+x.id+'" '+(x.id===S.origin?'selected':'')+'>'+x.name+(x.id==='blr'?' (you)':'')+'</option>';}).join('')+'</select></label>'+
+  '<div class="fld"><span>To</span><b>'+(g?g.name+' ('+g.code+')':p.villa.name+', '+p.town)+'</b></div>'+
+  '<div class="fld"><span>Dates</span><b>Sat 14 Nov, back Mon 16 Nov</b></div>';
+ if(S.mode!=='road'){
+  h+='<label class="tog"><input type="checkbox" '+(S.together?'checked':'')+' '+(S.travel?'disabled':'')+' onchange="setTogether(this.checked)"><span><b>We\'re all leaving together from '+o.name+'</b><br><span class="muted small">Untick if friends are leaving from different cities. You\'ll book only your own seat.</span></span></label>'+
+  '<div class="fld"><span>Travellers</span><span class="stepr"><button aria-label="Fewer travellers" onclick="stepVal(\'travellers\',-1)">−</button><b>'+S.travellers+'</b><button aria-label="More travellers" onclick="stepVal(\'travellers\',1)">+</button></span></div>'+
+  '<div class="fld" style="border:0"><span>Bags</span><span class="stepr"><button aria-label="Fewer bags" onclick="stepVal(\'bags\',-1)">−</button><b>'+S.bags+'</b><button aria-label="More bags" onclick="stepVal(\'bags\',1)">+</button></span></div>';
+ }
+ h+='</div>';
+ if(S.travel){
+  var t=S.travel;
+  if(t.mode==='road')h+='<div class="banner">'+SHIELD+'<div><b>Going by road</b>'+p.transNote+', '+inr(p.trans)+' from the group pot. Everyone agreed.</div></div>';
+  else h+='<div class="voucher"><div class="row between"><span class="small muted">Tickets booked</span><span class="ok small">✓ Paid with Scapia</span></div><h2>'+t.name+'</h2><p class="small muted" style="margin:0">'+t.cls+'. '+o.name+' to '+t.gate+' and back.</p><div class="vgrid"><div><span>Travellers</span><b>'+t.travellers+'</b></div><div><span>Bags</span><b>'+t.bags+'</b></div><div><span>Per person, each way</span><b>'+inr(t.fare)+'</b></div><div><span>Total</span><b>'+inr(t.total)+'</b></div></div><button class="btn line small" onclick="downloadReceipt(\''+t.receipt+'\')">Download receipt (PDF)</button></div><p class="small muted">The pot refunds your '+inr(t.total)+' once everyone pays their share. Then '+gate().transfer+'.</p>';
+  return h+'<div class="sticky"><button class="btn" onclick="go(\'plan\')">Continue to the plan</button></div>';
+ }
+ if(S.mode==='road'){
+  h+='<div class="fare sel" style="cursor:default"><div class="grow"><b>12-seat tempo traveller</b><div class="small muted">Door to door, about '+p.hrs+'. Return trip from Bengaluru.</div></div><span class="price">'+inr(p.trans)+'</span></div><a class="lnk" href="'+mapsDir(p)+'" target="_blank" rel="noopener">See the route in Google Maps</a>';
+  S.pick='road';
+ } else {
+  h+='<p class="small muted">Then '+g.transfer+'.</p><h2 class="sec">Cheapest options first</h2><p class="hint">Sample fares for the prototype. Live prices are on ixigo.</p>'+
+  options().map(function(x,k){var sel=S.pick===x.i;return '<button class="fare '+(sel?'sel':'')+'" onclick="pickOpt('+x.i+')" '+(S.travelAsk?'disabled':'')+' aria-pressed="'+sel+'"><div class="grow"><b>'+x.n+'</b>'+(k===0?' <span class="cheap">Cheapest</span>':'')+'<div class="small muted">'+x.c+'. Sat 14 Nov, back Mon 16 Nov.</div></div><span class="price">'+inr(x.fare)+'<br><small class="muted">per person</small></span></button>';}).join('')+
+  '<a class="btn line" href="'+ixigo()+'" target="_blank" rel="noopener" style="margin-top:6px">Compare live fares on ixigo</a><p class="small muted">Opens ixigo with '+o.name+', '+g.name+' and your dates filled in'+(S.mode==='flight'?', plus '+plural(S.travellers,'traveller'):'')+'. Add bags and '+(S.mode==='flight'?'seats':'passengers')+' on the booking page.</p>';
+ }
+ if(S.pick===null)return h;
+ var ok=travelAgreed();
+ h+='<h2 class="sec">Group OK</h2><p class="hint">Travel is a shared cost, so everyone signs off first.</p>'+GOING0.map(function(m){var y=m==='me'?S.travelAsk:S.travelOk[m];return '<div class="lrow">'+av(m,30)+'<div class="grow">'+PEOPLE[m].name+'</div>'+(y?'<span class="ok small">✓ OK</span>':'<span class="small muted">Waiting</span>')+'</div>';}).join('');
+ if(!S.travelAsk)h+='<div class="sticky"><button class="btn dark" onclick="askTravel()">Ask the group to OK this</button></div>';
+ else if(!ok)h+='<div class="sticky"><button class="btn" disabled>Waiting for everyone…</button></div>';
+ else if(S.mode==='road')h+='<div class="sticky"><button class="btn" onclick="confirmRoad()">Confirm road trip</button></div>';
+ else h+='<div class="sticky"><button class="btn" onclick="openScapia()">Pay '+inr(ticketTotal(pickedOpt().fare))+' with Scapia</button></div>';
+ return h;
 }
 
 /* ---------- Views ---------- */
@@ -560,6 +701,7 @@ function vHome(){
  '<div class="msg">'+av('rohan',30)+'<p><b>Rohan</b>In! Under 6 hours of driving?</p></div>'+
  '<div class="msg">'+av('ishita',30)+'<p><b>Ishita</b>Count me in. But last time two people dropped after we booked and we all ate the cost 😬</p></div>'+
  '</div>'+
+ benchCard()+
  '<div class="banner">'+SHIELD+'<div><b>Plans on TripPact are protected</b>The group votes on every decision, everyone\'s share is locked before booking, and if someone drops out later, nobody else pays more.</div></div>'+
  (S.organiser?'':'<div class="card"><div class="row between"><div><b>The group picked you as organiser</b><div class="small muted">Aarav, Meera, Rohan and Ishita voted for you. You set the questions and break ties.</div></div>'+av('me',40)+'</div></div>')+
  '<div class="sticky"><button class="btn" onclick="start()">'+(S.organiser?'Continue planning':'Accept and start planning')+'</button></div>';
@@ -639,7 +781,7 @@ function vPoll(){
   h+='<div class="pollopt '+(win?'win':sel?'sel':'')+'"><button class="pollbtn" onclick="votePlace(\''+id+'\')" '+(S.destination?'disabled':'')+' aria-pressed="'+sel+'"><div class="row between"><b>'+p.name+(win?' 🏆':'')+'</b><span class="small">'+plural(c[id],'vote')+'</span></div><div class="meter"><i style="width:'+(c[id]/5*100)+'%"></i></div><div class="row between"><span class="voters">'+vs.map(function(x){return av(x,24);}).join('')+'</span><span class="small muted">'+inr(perHead(p))+' per person, '+p.km+' km</span></div></button><button class="linkbtn" onclick="openPlace(\''+id+'\')">See details</button></div>';
  });
  if(!S.destination)h+='<div class="sticky"><button class="btn" '+(S.myPlace?'':'disabled')+' onclick="closePoll()">'+(S.myPlace?'Close the vote':'Cast your vote to close it')+'</button></div>';
- else{var p=P(S.destination);h+='<div class="banner">'+SHIELD+'<div><b>'+p.name+' it is</b>'+(S.pollTie?'It was a tie, so your organiser vote decided. ':'')+'The result and every vote are in Decisions for the whole group.</div></div><div class="sticky"><button class="btn" onclick="go(\'plan\')">Create the plan for '+p.name+'</button></div>';}
+ else{var p=P(S.destination);h+='<div class="banner">'+SHIELD+'<div><b>'+p.name+' it is</b>'+(S.pollTie?'It was a tie, so your organiser vote decided. ':'')+'The result and every vote are in Decisions for the whole group.</div></div><div class="sticky"><button class="btn" onclick="go(\'travel\')">Choose how to get to '+p.name+'</button></div>';}
  return h;
 }
 
@@ -649,8 +791,8 @@ function vPlan(){
  h+='<h2 class="sec">Who\'s going</h2><div class="people">'+GOING0.map(function(id){return '<div class="person">'+av(id,44)+'<span>'+PEOPLE[id].name+(id==='me'?'<br><span class="muted">organiser</span>':'')+'</span></div>';}).join('')+'</div>';
  h+='<h2 class="sec">Standby bench</h2><p class="hint">Friends of the group who aren\'t going yet but could take a seat if someone drops out. They only hear from us if a seat opens.</p>';
  if(!S.contacts)h+='<div class="card"><p class="small" style="margin-top:0">Find mutual friends of the 5 of you in your contacts.</p><button class="btn line small" onclick="S.contacts=true;render()">Check contacts for mutual friends</button></div>';
- else h+=BENCH.map(function(b){var q=PEOPLE[b.id];return '<div class="lrow">'+av(b.id,36)+'<div class="grow"><b>'+q.name+'</b><div class="small muted">'+plural(q.mutuals,'mutual friend')+': '+q.knows+'</div></div><span class="tag">Standby</span></div>';}).join('');
- h+='<h2 class="sec">Shared costs</h2><div class="card"><div class="led"><span>'+v.name+', 2 nights<br><small class="muted">Non-refundable</small></span><b>'+inr(v.cost)+'</b></div><div class="led"><span>Activities<br><small class="muted">'+p.actNote+'</small></span><b>'+inr(p.act)+'</b></div><div class="led"><span>Travel<br><small class="muted">'+p.transNote+'</small></span><b>'+inr(p.trans)+'</b></div><div class="led total"><span>Total for 5</span><b>'+inr(v.cost+p.act+p.trans)+'</b></div><div class="led total"><span>Each person\'s share</span><b>'+inr(sh)+'</b></div></div>';
+ else h+=BENCH.map(function(b){var q=PEOPLE[b.id];return '<div class="lrow">'+av(b.id,36)+'<div class="grow"><b>'+q.name+'</b><div class="small muted">'+plural(q.mutuals,'mutual friend')+': '+q.knows+'</div></div><span class="fitpill '+(q.fit>=75?'hi':'')+'">'+q.fit+'% fit</span></div>';}).join('');
+ h+='<h2 class="sec">Shared costs</h2><div class="card"><div class="led"><span>'+v.name+', 2 nights<br><small class="muted">Non-refundable</small></span><b>'+inr(v.cost)+'</b></div><div class="led"><span>Activities<br><small class="muted">'+p.actNote+'</small></span><b>'+inr(p.act)+'</b></div><div class="led"><span>Travel<br><small class="muted">'+travelNote()+'</small></span><b>'+inr(travelPot())+'</b></div><div class="led total"><span>Total for 5</span><b>'+inr(v.cost+p.act+travelPot())+'</b></div><div class="led total"><span>Each person\'s share</span><b>'+inr(sh)+'</b></div></div>';
  var votes=Object.assign({},PROT_VOTES);if(S.myProt)votes.me=S.myProt;
  h+='<h2 class="sec">Protection per person</h2><p class="hint">Added on top of each share, as a percentage of it. If someone drops out after booking and nobody takes their seat, protection pays them 75% of their share, so the group never has to refund them.</p>';
  PROT_OPTS.forEach(function(o){var sel=S.myProt===o.v;var vs=Object.keys(votes).filter(function(k){return votes[k]===o.v;});h+='<button class="opt '+(S.protRate===o.v?'win':sel?'sel':'')+'" onclick="voteProt(\''+o.v+'\')" '+(S.protRate?'disabled':'')+' aria-pressed="'+sel+'"><span class="opt-l"><b>'+inr(protAmt(o.v))+' each</b><small>'+o.v+'% of the '+inr(sh)+' share</small></span><span class="voters">'+vs.map(function(x){return av(x,24);}).join('')+'</span></button>';});
@@ -678,8 +820,9 @@ function vPay(){
 function vBooked(){
  var p=P(S.destination),v=p.villa;
  var h='<div class="done-hero"><div class="tick">✓</div><h1 class="h1">Villa booked</h1><p class="sub">Booked automatically once all 5 paid. Proof sent to everyone.</p></div>'+
- '<div class="voucher"><div class="row between"><span class="small muted">Booking ID</span><b>'+S.bookingId+'</b></div><h2>'+v.name+'</h2><p class="small muted" style="margin:0">'+p.area+'</p><div class="vgrid"><div><span>Check-in</span><b>Sat 14 Nov</b></div><div><span>Check-out</span><b>Mon 16 Nov</b></div><div><span>Guests</span><b>5</b></div><div><span>Paid to host</span><b>'+inr(v.cost)+'</b></div></div><p class="small" style="margin:0">Non-refundable. Activities ('+inr(p.act)+') and travel ('+inr(p.trans)+') stay in the group pot until the trip.</p></div>'+
+ '<div class="voucher"><div class="row between"><span class="small muted">Booking ID</span><b>'+S.bookingId+'</b></div><h2>'+v.name+'</h2><p class="small muted" style="margin:0">'+p.area+'</p><div class="vgrid"><div><span>Check-in</span><b>Sat 14 Nov</b></div><div><span>Check-out</span><b>Mon 16 Nov</b></div><div><span>Guests</span><b>5</b></div><div><span>Paid to host</span><b>'+inr(v.cost)+'</b></div></div><p class="small" style="margin:0">Non-refundable. Activities ('+inr(p.act)+') stay in the group pot until the trip.'+(S.travel&&S.travel.mode!=='road'?' Your ticket payment of '+inr(S.travel.total)+' has been refunded to you from the pot.':' Travel ('+inr(p.trans)+') stays in the pot too.')+'</p></div>'+
  '<div class="lrow"><span class="stack">'+GOING0.map(function(g){return av(g,28);}).join('')+'</span><div class="grow small">Proof seen by all 5</div><span class="ok small">✓✓</span></div>'+
+ '<button class="btn line" onclick="downloadReceipt(\'RC-'+S.bookingId.slice(3)+'\')">Download villa receipt (PDF)</button>'+
  '<div class="banner">'+SHIELD+'<div><b>Shares are locked at '+inr(share())+'</b>If anyone drops out from now on, a standby friend can take the seat. If nobody does, protection pays the dropout 75%. Nobody else pays more.</div></div>';
  if(S.dropout)h+='<div class="sticky"><button class="btn" onclick="go(\'dropout\')">See the dropout</button></div>';
  else h+='<h2 class="sec">Try the core moment</h2><p class="hint">See what happens when someone drops out after booking.</p><button class="btn" onclick="startDropout()">Simulate: Rohan drops out</button><button class="btn line" onclick="skipDrop()">Skip to the trip with no dropout</button>';
@@ -707,7 +850,7 @@ function vDropout(){
   else if(S.rejected.indexOf(b.id)>=0)right='<span class="miss">Not agreed</span>';
   else if(b.state==='wants')right=S.scenario?'<span class="small muted">Closed</span>':'<button class="btn small" onclick="propose(\''+b.id+'\')">Ask the group</button>';
   else right='<span class="small muted">'+(b.state==='quiet'?'No reply yet':'Declined')+'</span>';
-  return '<div class="lrow">'+av(b.id,38)+'<div class="grow"><b>'+q.name+'</b><div class="small muted">'+(b.state==='wants'?'Wants the seat. ':'')+plural(q.mutuals,'mutual friend')+': '+q.knows+'</div></div>'+right+'</div>';
+  return '<div class="lrow">'+av(b.id,38)+'<div class="grow"><b>'+q.name+'</b><div class="small muted">'+(b.state==='wants'?'Wants the seat. ':'')+plural(q.mutuals,'mutual friend')+'. '+q.fit+'% fit with the group</div></div>'+right+'</div>';
  }).join('');
  if(S.scenario)h+='<div class="sticky"><button class="btn" onclick="go(\'settle\')">See refunds</button></div>';
  else h+='<div class="sticky"><button class="btn line" onclick="noReplacement()">Fast-forward: no one joins in 48 hours</button></div>';
@@ -770,11 +913,11 @@ function vWallet(){
  return '<h1 class="h1">Wallets</h1><p class="sub">Every rupee in and out, visible to the whole group.</p>'+
  '<div class="chips">'+ids.map(function(i){return '<button class="chip '+(i===w?'on':'')+'" onclick="S.walletOf=\''+i+'\';render()">'+av(i,22)+PEOPLE[i].name+'</button>';}).join('')+'</div>'+
  '<div class="card"><div class="small muted">'+(w==='me'?'You have':PEOPLE[w].name+' has')+' paid in total</div><div class="big">'+inr(net)+'</div>'+(cr?'<div class="small ok">+ '+inr(cr)+' TripPact credit</div>':'')+'</div>'+
- (L.length?L.map(function(x){return '<div class="lrow"><div class="grow">'+x.t+'</div><b class="'+(x.a>0?'ok':'')+'">'+(x.a>0?'+':'−')+inr(Math.abs(x.a))+'</b></div>';}).join(''):'<div class="empty">No money has moved yet.<br>Payments open once everyone agrees to the plan.</div>');
+ (L.length?L.map(function(x){return '<div class="lrow"><div class="grow">'+x.t+'</div><b class="'+(x.a>0?'ok':'')+'">'+(x.a>0?'+':'−')+inr(Math.abs(x.a))+'</b></div>';}).join(''):'<div class="empty">No money has moved yet.<br>Payments open once everyone agrees to the plan.</div>')+receiptList();
 }
 
-var VIEWS={home:vHome,filters:vFilters,brochure:vBrochure,place:vPlace,poll:vPoll,plan:vPlan,pay:vPay,booked:vBooked,dropout:vDropout,settle:vSettle,trip:vTrip,after:vAfter,decisions:vDecisions,wallet:vWallet};
-var TITLES={home:'TripPact',filters:'Filters',brochure:'Places',poll:'Group vote',plan:'Plan',pay:'Payments',booked:'Booking',dropout:'Dropout',settle:'Refunds',trip:'Trip',after:'After the trip',decisions:'Decisions',wallet:'Wallets'};
+var VIEWS={home:vHome,travel:vTravel,filters:vFilters,brochure:vBrochure,place:vPlace,poll:vPoll,plan:vPlan,pay:vPay,booked:vBooked,dropout:vDropout,settle:vSettle,trip:vTrip,after:vAfter,decisions:vDecisions,wallet:vWallet};
+var TITLES={home:'TripPact',travel:'Travel',filters:'Filters',brochure:'Places',poll:'Group vote',plan:'Plan',pay:'Payments',booked:'Booking',dropout:'Dropout',settle:'Refunds',trip:'Trip',after:'After the trip',decisions:'Decisions',wallet:'Wallets'};
 
 var ICONS={
  back:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>',
@@ -788,7 +931,7 @@ function render(){
  var title=sc==='place'?P(S.placeId).name:TITLES[sc];
  $('#appbar').innerHTML=(S.hist.length?'<button class="iconbtn" onclick="back()" aria-label="Back">'+ICONS.back+'</button>':'<span style="width:12px"></span>')+'<h1>'+title+'</h1><span class="stack">'+going().map(function(g){return av(g,26);}).join('')+'</span>';
  var st=STAGE[S.lastJourney]||0;
- $('#stepper').innerHTML=st?'<div class="bars">'+[1,2,3,4,5,6,7].map(function(i){return '<span class="'+(i<st?'done':i===st?'now':'')+'"></span>';}).join('')+'</div><div class="stepcap">Step '+st+' of 7: '+STAGE_NAMES[st]+'</div>':'';
+ $('#stepper').innerHTML=st?'<div class="bars">'+[1,2,3,4,5,6,7,8].map(function(i){return '<span class="'+(i<st?'done':i===st?'now':'')+'"></span>';}).join('')+'</div><div class="stepcap">Step '+st+' of 8: '+STAGE_NAMES[st]+'</div>':'';
  $('#stepper').style.display=st?'':'none';
  $('#screen').innerHTML=VIEWS[sc]();
  var j=(sc!=='decisions'&&sc!=='wallet');
